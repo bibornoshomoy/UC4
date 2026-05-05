@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daily UC4 Map Order</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 8px;
+      font-size: 1.8em;
+    }
+    .subtitle {
+      color: #555;
+      margin: 0 0 20px;
+      font-size: 1em;
+    }
+    table {
+      margin: auto;
+      width: 90%;
+      max-width: 600px;
+      border-collapse: collapse;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      font-size: 1em;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #34495e;
+      color: #ffffff;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    @media (max-width: 600px) {
+      body { padding: 14px; }
+      th, td {
+        padding: 10px;
+        font-size: 0.95em;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Daily Order of 14 Uncharted 4 Maps</h1>
+  <p class="subtitle" id="dateText">Based on Perth, Australia date</p>
+
+  <table id="mapTable">
+    <tr>
+      <th>#</th>
+      <th>Map Name</th>
+    </tr>
+  </table>
+
+  <script>
+    const maps = [
+      "Island",
+      "Madagascar City",
+      "Scotland",
+      "River",
+      "Remnants",
+      "Sunken Ruins",
+      "Auction House",
+      "Pirate Colony",
+      "Village",
+      "Train Wreck",
+      "New Devon",
+      "Rooftops",
+      "Treasury",
+      "Prison"
+    ];
+
+    // Get today's date in Perth, Australia, regardless of where the viewer is located.
+    function getPerthDateString() {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Australia/Perth',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(new Date());
+
+      const year = parts.find(p => p.type === 'year').value;
+      const month = parts.find(p => p.type === 'month').value;
+      const day = parts.find(p => p.type === 'day').value;
+
+      return `${year}-${month}-${day}`;
+    }
+
+    // Convert the Perth date into a repeatable numeric seed.
+    function hashDateToSeed(dateString) {
+      let seed = 0;
+      for (let i = 0; i < dateString.length; i++) {
+        seed = (seed * 31 + dateString.charCodeAt(i)) >>> 0;
+      }
+      return seed;
+    }
+
+    // Seeded random number generator. Same seed means same random sequence.
+    function seededRandom(seed) {
+      return function() {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+    }
+
+    function shuffleWithSeed(array, seed) {
+      const random = seededRandom(seed);
+      const shuffled = [...array];
+
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      return shuffled;
+    }
+
+    function renderTable() {
+      const perthDate = getPerthDateString();
+      const seed = hashDateToSeed(perthDate);
+      const dailyMaps = shuffleWithSeed(maps, seed);
+
+      document.getElementById("dateText").textContent =
+        `Map order for ${perthDate} based on Perth, Australia time`;
+
+      const table = document.getElementById("mapTable");
+      dailyMaps.forEach((map, index) => {
+        const row = document.createElement("tr");
+        const numCell = document.createElement("td");
+        const nameCell = document.createElement("td");
+
+        numCell.textContent = index + 1;
+        nameCell.textContent = map;
+
+        row.appendChild(numCell);
+        row.appendChild(nameCell);
+        table.appendChild(row);
+      });
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
