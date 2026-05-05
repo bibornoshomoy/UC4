@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Random UC4 Map Order</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+    table {
+      margin: auto;
+      width: 90%;
+      max-width: 600px;
+      border-collapse: collapse;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      font-size: 1em;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #34495e;
+      color: #ffffff;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    @media (max-width: 600px) {
+      th, td {
+        padding: 10px;
+        font-size: 0.95em;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Order of 14 Uncharted 4 Maps</h1>
+  <table id="mapTable">
+    <tr>
+      <th>#</th>
+      <th>Map Name</th>
+    </tr>
+  </table>
+
+  <script>
+    const maps = [
+      "Island",
+      "Madagascar City",
+      "Scotland",
+      "River",
+      "Remnants",
+      "Sunken Ruins",
+      "Auction House",
+      "Pirate Colony",
+      "Village",
+      "Train Wreck",
+      "New Devon",
+      "Rooftops",
+      "Treasury",
+      "Prison"
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function renderTable() {
+      const table = document.getElementById("mapTable");
+      const shuffledMaps = shuffle([...maps]);
+      shuffledMaps.forEach((map, index) => {
+        const row = document.createElement("tr");
+        const numCell = document.createElement("td");
+        const nameCell = document.createElement("td");
+
+        numCell.textContent = index + 1;
+        nameCell.textContent = map;
+
+        row.appendChild(numCell);
+        row.appendChild(nameCell);
+        table.appendChild(row);
+      });
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
