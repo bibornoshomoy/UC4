@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Random UC4 Map Order</title>
+  <title>Daily UC4 Map Order</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,8 +14,13 @@
     }
     h1 {
       color: #2c3e50;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
       font-size: 1.8em;
+    }
+    .subtitle {
+      color: #555;
+      margin: 0 0 20px;
+      font-size: 1em;
     }
     table {
       margin: auto;
@@ -44,6 +49,7 @@
       background-color: #f1f1f1;
     }
     @media (max-width: 600px) {
+      body { padding: 14px; }
       th, td {
         padding: 10px;
         font-size: 0.95em;
@@ -55,7 +61,9 @@
   </style>
 </head>
 <body>
-  <h1>Random Order of 14 Uncharted 4 Maps</h1>
+  <h1>Daily Order of 14 Uncharted 4 Maps</h1>
+  <p class="subtitle" id="dateText">Based on Perth, Australia date</p>
+
   <table id="mapTable">
     <tr>
       <th>#</th>
@@ -81,18 +89,61 @@
       "Prison"
     ];
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    // Get today's date in Perth, Australia, regardless of where the viewer is located.
+    function getPerthDateString() {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Australia/Perth',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(new Date());
+
+      const year = parts.find(p => p.type === 'year').value;
+      const month = parts.find(p => p.type === 'month').value;
+      const day = parts.find(p => p.type === 'day').value;
+
+      return `${year}-${month}-${day}`;
+    }
+
+    // Convert the Perth date into a repeatable numeric seed.
+    function hashDateToSeed(dateString) {
+      let seed = 0;
+      for (let i = 0; i < dateString.length; i++) {
+        seed = (seed * 31 + dateString.charCodeAt(i)) >>> 0;
       }
-      return array;
+      return seed;
+    }
+
+    // Seeded random number generator. Same seed means same random sequence.
+    function seededRandom(seed) {
+      return function() {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+    }
+
+    function shuffleWithSeed(array, seed) {
+      const random = seededRandom(seed);
+      const shuffled = [...array];
+
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      return shuffled;
     }
 
     function renderTable() {
+      const perthDate = getPerthDateString();
+      const seed = hashDateToSeed(perthDate);
+      const dailyMaps = shuffleWithSeed(maps, seed);
+
+      document.getElementById("dateText").textContent =
+        `Map order for ${perthDate} based on Perth, Australia time`;
+
       const table = document.getElementById("mapTable");
-      const shuffledMaps = shuffle([...maps]);
-      shuffledMaps.forEach((map, index) => {
+      dailyMaps.forEach((map, index) => {
         const row = document.createElement("tr");
         const numCell = document.createElement("td");
         const nameCell = document.createElement("td");
